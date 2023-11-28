@@ -5,6 +5,17 @@ const username = localStorage.getItem('name');
 const labelStatusOn = document.querySelector('#status-online');
 const labelStatusOff = document.querySelector('#status-offline');
 
+const usersUlElement = document.querySelector('ul');
+
+const renderUsers = (users) => {
+  usersUlElement.innerHTML = '';
+  users.forEach((user) => {
+    const liElement = document.createElement('li');
+    liElement.innerText = user.name;
+    usersUlElement.appendChild(liElement);
+  });
+};
+
 if (!username) {
   window.location.replace('/');
   throw new Error('Username is required');
@@ -27,4 +38,13 @@ socket.on('disconnect', () => {
   console.log('Disconnected');
   labelStatusOff.classList.remove('hidden');
   labelStatusOn.classList.add('hidden');
+});
+
+socket.on('welcome-message', (msg) => {
+  console.log(msg);
+});
+
+socket.on('on-clients-change', (data) => {
+  renderUsers(data);
+  console.log(data);
 });
