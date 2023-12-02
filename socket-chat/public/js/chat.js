@@ -7,6 +7,17 @@ const labelStatusOff = document.querySelector('#status-offline');
 
 const usersUlElement = document.querySelector('ul');
 
+const form = document.querySelector('form');
+const input = document.querySelector('input');
+const chatElement = document.querySelector('#chat');
+
+form.addEventListener('submit', (e) => {
+  e.preventDefault();
+  const message = input.value;
+  input.value = '';
+  socket.emit('send-message', message);
+});
+
 const renderUsers = (users) => {
   usersUlElement.innerHTML = '';
   users.forEach((user) => {
@@ -14,6 +25,21 @@ const renderUsers = (users) => {
     liElement.innerText = user.name;
     usersUlElement.appendChild(liElement);
   });
+};
+
+const renderMessage = (payload) => {
+  const { userId, message, name } = payload;
+  const divElement = document.createElement('div');
+  divElement.classList.add('message');
+
+  if (userId == socket.id) {
+    divElement.classList.add('incoming');
+  }
+
+  divElement.innerHTML = message;
+  chatElement.appendChild(divElement);
+
+  chatElement.scrollTop = chatElement.scrollHeight;
 };
 
 if (!username) {
@@ -46,5 +72,10 @@ socket.on('welcome-message', (msg) => {
 
 socket.on('on-clients-change', (data) => {
   renderUsers(data);
+  console.log(data);
+});
+
+socket.on('on-message', (data) => {
+  renderMessage(data);
   console.log(data);
 });
